@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Devices</title>
+    <script>
+        async function scanNetwork() {
+            const ipRange = document.getElementById('ip-range').value;
+            
+            try {
+                console.log("Starting network scan on IP range:", ipRange);
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ip_range: ipRange })
+                });
+    
+                if (!response.ok) {
+                    console.error("Network scan request failed:", response.statusText);
+                    return;
+                }
+    
+                const devices = await response.json();
+                console.log("Received devices:", devices);
+    
+                const deviceList = document.getElementById('device-list');
+                deviceList.innerHTML = '';  // Clear previous results
+    
+                devices.forEach(device => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `IP: ${device.ip}, 
+                    MAC: ${device.mac}, 
+                    Hostname: ${device.hostname}`;
+                    deviceList.appendChild(listItem);
+                });         
+            } catch (error) {
+                console.error("Error during scanNetwork:", error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <center>
+    <h1><u>Devices on the Network</u></h1>
+    <input type="text" id="ip-range" placeholder="Enter IP range, e.g., 192.168.88.0/24">
+    <br><br>
+    <button onclick="scanNetwork()">Scan Network</button>
+    <ul id="device-list"></ul>
+    </center>
+</body>
+</html>
